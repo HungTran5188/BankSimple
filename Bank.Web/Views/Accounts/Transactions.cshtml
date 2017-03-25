@@ -1,0 +1,44 @@
+@model IEnumerable<Bank.Entities.AccountTransaction>
+
+<h2>Transaction List</h2>
+
+                      <table class="table">
+                          <thead>
+                              <tr>
+                                  <th>
+                                     Account Number
+                                  </th>
+                                  <th>
+                                      Account Name
+                                  </th>
+                                  <th>
+                                     Desciption
+                                  </th>
+                                  <th>
+                                     Transaction Date
+                                  </th>
+                                
+                                 
+                              </tr>
+                          </thead>
+                          <tbody>
+                              @foreach (var item in Model)
+                              {
+                                  <tr>
+                                      <td>
+                                          @Html.DisplayFor(modelItem => item.Account.AccountNumber)
+                                      </td>
+                                      <td>
+                                          @Html.DisplayFor(modelItem => item.Account.AccountName)
+                                      </td>
+                                      <td>
+                                          @Html.DisplayFor(modelItem => item.Description)
+                                      </td>
+                                      <td>
+                                         @(((DateTime)item.TranDate).ToString("mm/dd/yyyy hh:mm"))
+                                      </td>
+                                    
+                                  </tr>
+                              }
+                          </tbody>
+                      </table>
