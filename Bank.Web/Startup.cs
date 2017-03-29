@@ -12,9 +12,13 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using Bank.Entities;
 using Bank.Cores;
+using AutoMapper;
+
+using Bank.Web.Middleware;
 
 namespace Bank.Web
 {
+ 
     public class Startup
     {
         public Startup(IHostingEnvironment env)
@@ -26,7 +30,7 @@ namespace Bank.Web
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
-
+     
         public IConfigurationRoot Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -34,7 +38,7 @@ namespace Bank.Web
         {
             // Add framework services.
             services.AddMvc();
-
+            
             services.AddDbContext<BankContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("BankContext")));
 
@@ -54,32 +58,52 @@ namespace Bank.Web
 //Making the context singleton causes serious issues, especially with the memory(the more you work on it, the more memory the context consumes, as it has to track more records).So a DbContext should be as short - lived as possible.
             #endregion
             services.AddTransient<IAccountRepository, AccountRepository>();
+            services.AddAutoMapper(typeof(Startup));
+           
         }
 
+        public IMapper Mapper { get; set; }
+
+        private MapperConfiguration MapperConfiguration { get; set; }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
-
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //    app.UseBrowserLink();
+               
+            //}
+            //else
+            //{
+            //    app.UseExceptionHandler("/Home/Error");
+            //}
+           
             app.UseStaticFiles();
-
+            app.UseMiddleware(typeof(ErrorHandlingMiddleware));
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            MapperConfiguration MapperConfiguration = new MapperConfiguration(cfg =>
+            {
+
+                cfg.CreateMap<Account, Models.AccountModel>().ReverseMap();
+                cfg.CreateMap<Models.AccountModel, Account> ().ReverseMap();
+                cfg.CreateMap<Models.AccountCreateModel, Account>().ReverseMap();
+                cfg.CreateMap<Models.AccountEditModel, Account>().ReverseMap();
+            });
+            
+            Mapper = MapperConfiguration.CreateMapper();
+
+
+            
         }
     }
 }

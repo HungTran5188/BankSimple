@@ -60,7 +60,7 @@ namespace Bank.Test
         public void DepositAmount_Success()
         {
             var account = _accountRepository.Get("1234567");
-            AccountModel model = new AccountModel()
+            AccountEditModel model = new AccountEditModel()
             {
                 AccountID = account.AccountID,
                 Amount = 15000,
@@ -74,7 +74,7 @@ namespace Bank.Test
         public  void DepositAmount_Concurency()
         {
             var account = _accountRepository.Get("1234567");
-            AccountModel model = new AccountModel()
+            AccountEditModel model = new AccountEditModel()
             {
                 AccountID = account.AccountID,
                 Amount = 15000,
@@ -90,7 +90,7 @@ namespace Bank.Test
         public void WithdrawAmount_Success()
         {
             var account = _accountRepository.Get("1234567");
-            AccountModel model = new AccountModel()
+            AccountEditModel model = new AccountEditModel()
             {
                 AccountID = account.AccountID,
                 Amount = 300000,
@@ -103,7 +103,7 @@ namespace Bank.Test
         public void WithdrawAmount_Concurency()
         {
             var account = _accountRepository.Get("1234567");
-            AccountModel model = new AccountModel()
+            AccountEditModel model = new AccountEditModel()
             {
                 AccountID = account.AccountID,
                 Amount = 15000,
@@ -116,7 +116,7 @@ namespace Bank.Test
         public void WithdrawAmount_Insufficient()
         {
             var account = _accountRepository.Get("1234567");
-            AccountModel model = new AccountModel()
+            AccountEditModel model = new AccountEditModel()
             {
                 AccountID = account.AccountID,
                 Amount = 500000000,
@@ -132,7 +132,7 @@ namespace Bank.Test
         {
             Account senderAccount = null;
             Account reciverAccount = null;
-            AccountModel account = new AccountModel()
+            AccountEditModel account = new AccountEditModel()
             {
                 AccountID = 1, //Sender Account
                 TranferNumber = "123456789",
@@ -150,7 +150,7 @@ namespace Bank.Test
         {
             Account senderAccount = null;
             Account reciverAccount = null;
-            AccountModel account = new AccountModel()
+            AccountEditModel account = new AccountEditModel()
             {
                 AccountID = 1, //Sender Account
                 TranferNumber = "123456789", //ReciverAccoutNumber
@@ -164,7 +164,7 @@ namespace Bank.Test
         {
             Account senderAccount = null;
             Account reciverAccount = null;
-            AccountModel account = new AccountModel()
+            AccountEditModel account = new AccountEditModel()
             {
                 AccountID = 1, //Sender Account
                 TranferNumber = "1234567892126537678", //InvalidAccountNumber
@@ -179,7 +179,7 @@ namespace Bank.Test
         {
             Account senderAccount = null;
             Account reciverAccount = null;
-            AccountModel account = new AccountModel()
+            AccountEditModel account = new AccountEditModel()
             {
                 AccountID = 1, //Sender Account
                 TranferNumber = "123456789", //ReciverAccoutNumber

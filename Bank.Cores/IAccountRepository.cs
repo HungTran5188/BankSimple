@@ -23,10 +23,10 @@ namespace Bank.Cores
         Task<int> Add(Account entity);
 
         Task<int> Delete(int id);
-        Task<int> DepositAmount(byte[] rowVersion, AccountModel model);
-        Task<int> WithdrawAmount(byte[] rowVersion, AccountModel model);
-        void TranferAmount(byte[] rowVersion, AccountModel model, Account senderEntity, Account receiverEntity);
-        bool IsValidAccount(AccountModel model, out Account senderEntity, out Account receiverEntity);
+        Task<int> DepositAmount(byte[] rowVersion, AccountEditModel model);
+        Task<int> WithdrawAmount(byte[] rowVersion, AccountEditModel model);
+        void TranferAmount(byte[] rowVersion, AccountEditModel model, Account senderEntity, Account receiverEntity);
+        bool IsValidAccount(AccountEditModel model, out Account senderEntity, out Account receiverEntity);
     }
     public class AccountRepository : IAccountRepository
     {
@@ -83,7 +83,7 @@ namespace Bank.Cores
             return _context.AccountTransactions.Include(x => x.Account).OrderByDescending(x=>x.TranDate).ToListAsync();
 
         }
-        public Task<int> DepositAmount(byte[] rowVersion, AccountModel model)
+        public Task<int> DepositAmount(byte[] rowVersion, AccountEditModel model)
         {
             AccountTransaction trans = null;
             Account entity = null;
@@ -97,6 +97,7 @@ namespace Bank.Cores
                 }
 
                 _context.Entry(entity).Property("RowVersion").OriginalValue = rowVersion;
+                
                 BankAccount ac = new BankAccount(entity.Balance);
                 ac.Deposit(model.Amount);
                 entity.Balance = ac.Balance;
@@ -117,7 +118,7 @@ namespace Bank.Cores
 
         }
 
-        public Task<int> WithdrawAmount(byte[] rowVersion, AccountModel model)
+        public Task<int> WithdrawAmount(byte[] rowVersion, AccountEditModel model)
         {
             AccountTransaction trans = null;
             Account entity = null;
@@ -164,7 +165,7 @@ namespace Bank.Cores
 
         }
 
-        public void TranferAmount(byte[] rowVersion, AccountModel model, Account senderEntity, Account receiverEntity)
+        public void TranferAmount(byte[] rowVersion, AccountEditModel model, Account senderEntity, Account receiverEntity)
         {
             AccountTransaction trans = null;
             using (var transaction = _context.Database.BeginTransaction())
@@ -207,7 +208,7 @@ namespace Bank.Cores
 
         }
 
-        public bool IsValidAccount(AccountModel model, out Account senderEntity, out Account receiverEntity)
+        public bool IsValidAccount(AccountEditModel model, out Account senderEntity, out Account receiverEntity)
         {
 
             senderEntity = _context.Accounts.SingleOrDefault(x => x.AccountID == model.AccountID);

@@ -9,16 +9,23 @@ using Bank.Entities;
 using Bank.Cores;
 using Bank.Models;
 using Bank.Infrastructures;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bank.Web.Controllers
 {
-    public class AccountsController : Controller
+    /// <summary>
+    /// Assumption user after login successful and Use the Authorize to prevent Anonymous access this page
+    /// </summary>
+    //[Authorize]
+    public class AccountsController : BaseController
     {
-
+       // private IMapper _mapper { get; set; }
         private readonly IAccountRepository _accountRepository;
-        public AccountsController(IAccountRepository accountRepository)
+        public AccountsController(IAccountRepository accountRepository, IMapper mapper)
         {
             _accountRepository = accountRepository;
+            //_mapper = mapper;
         }
 
         // GET: Accounts
@@ -56,15 +63,33 @@ namespace Bank.Web.Controllers
         // POST: Accounts/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// Use AccountModel instead of Account for validation model
+        /// </summary>
+        /// <param name="account"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AccountNumber,AccountName,Password, Balance")] Account account)
+        public async Task<IActionResult> Create([Bind("AccountNumber,AccountName,Password,ConfirmPassword, Balance")] AccountCreateModel accountModel)
         {
             try
             {
-                await _accountRepository.Add(account);
-                return RedirectToAction("Index");
+                //Use ModelState to prevent the external incomming attack, rules validate in DataAnnotations of AccountCreateModel class
+                if (ModelState.IsValid)
+                {
+                    //Move mapping to extenstions function or using mapper to map
+                    // Account account = _mapper.Map<AccountCreateModel, Account>(accountModel);
+                    Account account = new Account()
+                    {
+                        AccountNumber = accountModel.AccountNumber,
+                        AccountName = accountModel.AccountName,
+                        Password = accountModel.Password,
+                        Balance = accountModel.Balance,
+                    };
 
+                    await _accountRepository.Add(account);
+                    return RedirectToAction("Index");
+                }
             }
             catch (BankException ex)
             {
@@ -72,7 +97,7 @@ namespace Bank.Web.Controllers
             }
 
 
-            return View(account);
+            return View(accountModel);
         }
 
         // GET: Accounts/Edit/5
@@ -102,7 +127,7 @@ namespace Bank.Web.Controllers
                 return NotFound();
             }
 
-            return View("Edit", new AccountModel()
+            return View("Edit", new AccountEditModel()
             {
                 AccountID = account.AccountID,
                 AccountName = account.AccountName,
@@ -121,7 +146,7 @@ namespace Bank.Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(byte[] rowVersion, ActionType ActionType, [Bind("AccountID,AccountNumber,AccountName,Balance,Amount,TranferNumber")] AccountModel account)
+        public async Task<IActionResult> Edit(byte[] rowVersion, ActionType ActionType, [Bind("AccountID,AccountNumber,AccountName,Balance,Amount,TranferNumber")] AccountEditModel account)
         {
             try
             {
@@ -150,13 +175,13 @@ namespace Bank.Web.Controllers
 
                 return RedirectToAction("Index");
             }
-            catch (DbUpdateConcurrencyException ex)
-            {
+            //catch (DbUpdateConcurrencyException ex)
+            //{
 
-                ModelState.AddModelError(string.Empty, "The record you attempted to edit "
-                    + "was modified by another user after you got the original value.");
-                account.RowVersion = rowVersion;
-            }
+            //    ModelState.AddModelError(string.Empty, "The record you attempted to edit "
+            //        + "was modified by another user after you got the original value.");
+            //    account.RowVersion = rowVersion;
+            //}
             catch (BankException ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);

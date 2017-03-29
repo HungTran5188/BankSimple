@@ -4,12 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace Bank.Web.Controllers
 {
-    public class HomeController : Controller
+
+    public class HomeController : BaseController
     {
         public IActionResult Index()
         {
+            //var a = (int)(object)"a";
             return View();
         }
 

@@ -25,19 +25,11 @@ namespace Bank.Models
         [RegularExpression(@"[0-9]*\.?[0-9]+", ErrorMessage = "{0} must be a Number.")]
         public decimal Balance { get; set; }
 
-        [Required]
-        [DisplayFormat(DataFormatString = "{0:C0}")]
-        [RegularExpression(@"[0-9]*\.?[0-9]+", ErrorMessage = "{0} must be a Number.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Please enter a value bigger than {1}")]
-        public decimal Amount { get; set; }
+       
 
         public byte[] RowVersion { get; set; }
 
-        public ActionType ActionType { get; set; }
-        [Required]
-        [RegularExpression(@"[0-9]*\.?[0-9]+", ErrorMessage = "{0} must be a Number.")]
-        [StringLength(16, MinimumLength = 4)]
-        public string TranferNumber { get; set; }
+
     }
     public class AccountCreateModel : AccountModel
     {
@@ -51,5 +43,18 @@ namespace Bank.Models
         [DataType(DataType.Password)]
         [Compare("Password")]
         public string ConfirmPassword { get; set; }
+    }
+
+    public class AccountEditModel : AccountModel {
+        [Required]
+        [DisplayFormat(DataFormatString = "{0:C0}")]
+        [RegularExpression(@"[0-9]*\.?[0-9]+", ErrorMessage = "{0} must be a Number.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please enter a value bigger than {1}")]
+        public decimal Amount { get; set; }
+        public ActionType ActionType { get; set; }
+        [Required]
+        [RegularExpression(@"[0-9]*\.?[0-9]+", ErrorMessage = "{0} must be a Number.")]
+        [StringLength(16, MinimumLength = 4)]
+        public string TranferNumber { get; set; }
     }
 }
