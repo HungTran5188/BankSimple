@@ -13,11 +13,11 @@ namespace Bank.Entities
         {
 
         }
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<Account>().Property(s => s.Balance).IsConcurrencyToken().IsRowVersion();
-        //    base.OnModelCreating(modelBuilder);
-        //}
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Account>().Property(s => s.Balance).IsConcurrencyToken();
+            base.OnModelCreating(modelBuilder);
+        }
 
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<AccountTransaction> AccountTransactions { get; set; }
@@ -42,7 +42,7 @@ namespace Bank.Entities
      
         public string Password { get; set; }
 
-        //[ConcurrencyCheck]
+        [ConcurrencyCheck]
         public decimal Balance { get; set; }
 
         public DateTime? CreatedDate { get; set; }

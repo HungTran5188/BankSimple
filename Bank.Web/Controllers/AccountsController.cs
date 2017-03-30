@@ -157,6 +157,7 @@ namespace Bank.Web.Controllers
                         break;
                     case ActionType.Withdraw:
                         await _accountRepository.WithdrawAmount(rowVersion, account);
+                       
                         break;
                     case ActionType.Tranfer:
                         Account senderAccount = null;
@@ -222,6 +223,12 @@ namespace Bank.Web.Controllers
         {
             var result = _accountRepository.Get(id);
             return (result.IsCompleted && result.Result != null);
+        }
+
+        public IActionResult ConcurencyTest()
+        {
+            _accountRepository.ConcurencyTest();
+            return Ok();
         }
     }
 }

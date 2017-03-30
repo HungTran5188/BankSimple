@@ -25,8 +25,11 @@ namespace Bank.Cores
         Task<int> Delete(int id);
         Task<int> DepositAmount(byte[] rowVersion, AccountEditModel model);
         Task<int> WithdrawAmount(byte[] rowVersion, AccountEditModel model);
+       
         void TranferAmount(byte[] rowVersion, AccountEditModel model, Account senderEntity, Account receiverEntity);
         bool IsValidAccount(AccountEditModel model, out Account senderEntity, out Account receiverEntity);
+
+        void ConcurencyTest();
     }
     public class AccountRepository : IAccountRepository
     {
@@ -151,6 +154,7 @@ namespace Bank.Cores
                     _context.Entry(trans).State = EntityState.Added;
                     _context.Entry(entity).State = EntityState.Modified;
                     result = _context.SaveChangesAsync();
+                
                 }
                 else
                 {
@@ -164,7 +168,7 @@ namespace Bank.Cores
 
 
         }
-
+       
         public void TranferAmount(byte[] rowVersion, AccountEditModel model, Account senderEntity, Account receiverEntity)
         {
             AccountTransaction trans = null;
@@ -234,6 +238,30 @@ namespace Bank.Cores
             return true;
         }
 
-       
+        public void ConcurencyTest()
+        {
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
+            _context.Accounts.Add(new Account { AccountNumber = "987651234", AccountName = "Test", Balance = 350000, CreatedDate = DateTime.Now });
+            _context.SaveChanges();
+
+            var builder = new DbContextOptionsBuilder<BankContext>();
+            builder.UseSqlServer(@"Server=.;Database=Bank;Trusted_Connection=True;");
+
+            DbContextOptions<BankContext> options = builder.Options;
+
+            using (var _context = new BankContext(options))
+            {
+                var databaseAccount = _context.Accounts.Where(x => x.AccountNumber == "987651234").FirstOrDefault();
+                databaseAccount.CreatedDate = DateTime.Now;
+                // Change the persons name in the database (will cause a concurrency conflict)
+                 _context.Database.ExecuteSqlCommand("UPDATE dbo.Accounts SET Balance = 10 WHERE AccountID = 1"); //AccountNumber : 56789
+                _context.Entry(databaseAccount).State = EntityState.Modified;
+                    _context.SaveChanges();
+               
+
+            }
+
+        }
     }
 }
